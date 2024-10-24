@@ -1,4 +1,4 @@
-# This library implements a data structure that allows efficient responses to specific queries about a sequence of numbers X. Furthermore, the successive elements of the sequence may be revealed online.
+### This library implements a data structure that allows efficient responses to specific queries about a sequence of numbers X. Furthermore, the successive elements of the sequence may be revealed online.
 
 void init(const vector<int> &x) – initializes the initial sequence X with the values from the vector x (note: the sequence can contain any values that fit in the int type).
 
