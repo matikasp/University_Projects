@@ -7,22 +7,22 @@
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
-// typ - sygnal boolowski lub bramka nand
+// typ - boolean signal or nand gate
 enum Type {
     BOOL,
     NAND
 };
 
-// wartosc logiczna bramki - wyznaczona, w trakcie lub jeszcze nie
-// zeby w nand_evaluate dla kazdej z bramki wyznaczyc jej wartosc tylko raz
+// logical value of the gate - evaluated, in-progress, or not yet
+// so in nand_evaluate, each gate's value is calculated only once
 enum OutputState {
     EVALED,
     EVALING,
     NEVAL
 };
 
-// sygnal boolowski traktuje jako rodzaj nanda
-// dlatego robie tutaj unie
+// boolean signal treated as a kind of nand
+// therefore, I use a union here
 struct nand {
     enum Type type;
     union {
@@ -40,9 +40,9 @@ struct nand {
     };
 };
 
-// tworzenie nowej bramki
+// creating a new gate
 nand_t* nand_new(unsigned n) {
-    // alokacja pamieci
+    // memory allocation
     nand_t* new_nand = (nand_t*)malloc(sizeof(nand_t));
     if (new_nand == NULL) {
         errno = ENOMEM;
@@ -62,8 +62,8 @@ nand_t* nand_new(unsigned n) {
         return NULL;
     }
 
-    // jesli alokacje sie powiodly to zapelnienie tablicy input nullami
-    // oraz ustawienie pozostalych zmiennych
+    // if allocations succeeded, fill the input array with nulls
+    // and set other variables
     for (unsigned idx = 0; idx < n; ++idx) {
         new_nand->input[idx] = NULL;
     }
@@ -76,17 +76,17 @@ nand_t* nand_new(unsigned n) {
     return new_nand;
 }
 
-// usuwanie bramki
+// deleting a gate
 void nand_delete(nand_t *g) {
     if (g == NULL) {
         return;
     }
-    // jesli funkcja dostala na wejsciu wartosc boolowska to
-    // traktuje ja jako bledny parametr i nic nie robi
+    // if the function received a boolean value
+    // it treats it as an invalid parameter and does nothing
     if (g->type == BOOL) {
         return;
     }
-    // usuwamy wszystkie wystapienia node'ow w outputs bramek wejsciowych
+    // remove all occurrences of nodes in the outputs of input gates
     for (unsigned idx = 0; idx < g->input_size; ++idx) {
         if (g -> input[idx] == NULL) {
             continue;
@@ -94,12 +94,12 @@ void nand_delete(nand_t *g) {
         else if (g->input[idx]->type == NAND) {
             deleteNode(g->input[idx]->outputs, g);
         }
-        else { // jesli g->input[idx]->type == BOOL
-            // wtedy zwalniamy wartosc boolowska, bo nie jest juz potrzebna
+        else { // if g->input[idx]->type == BOOL
+            // free the boolean value since it's no longer needed
             free(g->input[idx]);
         }
     }
-    // usuwamy z tablic input bramek z outputs wszystkie wystapienia g
+    // remove all occurrences of g from the input gates' outputs
     for (ssize_t idx = 0; idx < g->outputs->size; ++idx) {
         nand_t* tmp = iterQueue(g->outputs, idx);
         for (unsigned j = 0; j < tmp->input_size; ++j) {
@@ -109,16 +109,16 @@ void nand_delete(nand_t *g) {
         }
     }
 
-    // zwolnienie pamieci po bramce, kolejce outputs i tablicy input
+    // free memory for the gate, the outputs queue, and the input array
     free(g->input);
     freeQueue(g->outputs);
     free(g);
 }
 
-// podlaczenie wyjscia jednej bramki do k-tego wejscia drugiej
+// connect the output of one gate to the k-th input of another
 int nand_connect_nand(nand_t *g_out, nand_t *g_in, unsigned k) {
 
-    // obsluga nieprawidlowych wartosci
+    // handle invalid values
     if (g_in == NULL || g_out == NULL) {
         errno = EINVAL;
         return -1;
@@ -128,39 +128,41 @@ int nand_connect_nand(nand_t *g_out, nand_t *g_in, unsigned k) {
         return -1;
     }
 
-    // obsluga niepowodzenia w alokacji pamieci
+    // handle memory allocation failure
     if (push(g_out->outputs, g_in) == -1) {
         errno = ENOMEM;
         return -1;
     }
 
-    // czyscimy wejscie bramki oraz usuwamy jedno wystapienie
-    // bramki w outputs bramki, ktora byla na jej k-tym wejsciu
+    // clear the gate's input and remove one occurrence
+    // of the gate in the outputs of the gate that was on its k-th input
     if (g_in->input[k] != NULL && g_in->input[k]->type == NAND) {
         deleteNode(g_in->input[k]->outputs, g_in);
     }
-    if(g_in->input[k]!=NULL&&g_in->input[k]->type==BOOL)free(g_in->input[k]);
+    if (g_in->input[k] != NULL && g_in->input[k]->type == BOOL) {
+        free(g_in->input[k]);
+    }
 
     g_in->input[k] = g_out;
 
     return 0;
 }
 
-// tworzy wartosc boolowska
+// creates a boolean value
 nand_t* create_bool(bool* logic_val) {
-    // alokacja pamieci
+    // memory allocation
     nand_t* new_bool = (nand_t*)malloc(sizeof(nand_t));
     if (new_bool == NULL) {
         return NULL;
     }
 
-    // ustawienie zmiennych na porzadane wartosci
+    // set the variables to the desired values
     new_bool->type = BOOL;
     new_bool->logic_val = logic_val;
     return new_bool;
 }
 
-// podlacza sygnal boolowski do k-tego wejscia bramki
+// connect a boolean signal to the k-th input of the gate
 int nand_connect_signal(bool const *s, nand_t *g, unsigned k) {
     if (s == NULL || g == NULL) {
         errno = EINVAL;
@@ -178,22 +180,24 @@ int nand_connect_signal(bool const *s, nand_t *g, unsigned k) {
     if (g->input[k] != NULL && g->input[k]->type == NAND) {
         deleteNode(g->input[k]->outputs, g);
     }
-    if(g->input[k]!=NULL&&g->input[k]->type==BOOL)free(g->input[k]);
+    if (g->input[k] != NULL&&g->input[k]->type == BOOL) {
+        free(g->input[k]);
+    }
     g->input[k] = tmp;
     return 0;
 }
 
-// po nand_evaluate chcemy zamienic w kazdej bramce ktora odwiedzilismy stan
-// z powrotem na NEVAL
+// after nand_evaluate, we want to reset the state
+// of each gate we visited back to NEVAL
 void clear_eval(nand_t *g) {
-    // jesli trafilismy na nulla, boola albo neval to znaczy ze
-    // albo doszlismy do "poczatku" grafu bramek
-    // albo przeszlismy po calym cyklu jesli taki wystepowal
+    // if we hit a null, a bool, or neval, it means
+    // either we reached the "beginning" of the gate graph
+    // or we've traversed an entire cycle if one existed
     if (g == NULL || g->type == BOOL || g->state == NEVAL) {
         return;
     }
 
-    // ustawiamy g->state na NEVAL i czyscimy rekurencyjnie bramki
+    // set g->state to NEVAL and recursively clear gates
     g->state = NEVAL;
 
     for (unsigned idx = 0; idx < g->input_size; ++idx) {
@@ -201,22 +205,22 @@ void clear_eval(nand_t *g) {
     }
 }
 
-// struct do wygodnego zwracania stanu bramki (output + dlugosc krytyczna)
+// struct to conveniently return the state of a gate (output + critical length)
 struct nand_state {
     bool output;
     ssize_t critical_length;
 };
 
-// rekurencyjnie wyznacza dlugosc sciezki krytycznej danej bramki
-// (rekurencja ze spamietywaniem)
+// recursively determines the critical path length of a given gate
+// (memoization recursion)
 struct nand_state nand_evaluate_rec(nand_t *g) {
     struct nand_state result;
 
-    // przypadki podstawowe
-    // BOOL - doszlismy do "poczatku grafu"
-    // g->input_size == 0 - trafilismy na bramke bez wejsc
-    // EVALED - do wierzcholka, ktory zostal obliczony wczesniej
-    // EVALING - trafilismy na cykl
+    // base cases
+    // BOOL - we reached the "beginning of the graph"
+    // g->input_size == 0 - we hit a gate without inputs
+    // EVALED - a node that was calculated earlier
+    // EVALING - we hit a cycle
 
     if (g->type == BOOL) {
         result.output = *(g->logic_val);
@@ -240,48 +244,48 @@ struct nand_state nand_evaluate_rec(nand_t *g) {
         return result;
     }
 
-    // rekurencyjnie wyznaczamy dlugosc sciezki krytycznej i wartosci logiczne
+    // recursively determine the critical path length and logical values
     result.critical_length = 0;
     result.output = false;
     g->state = EVALING;
     for (unsigned idx = 0; idx < g->input_size; ++idx) {
-        // jesli trafimy na NULL na wejsciu danej bramki to nie mozemy policzyc
+        // if we hit NULL in a gate's input, we can't calculate
         if (g->input[idx] == NULL) {
             errno = ECANCELED;
             result.critical_length = -1;
             return result;
         }
         struct nand_state eval_curr = nand_evaluate_rec(g->input[idx]);
-        // jesli dlugosc sciezki krytycznej to -1 to znaczy ze
-        // przerwano obliczanie dlugosci sciezki krytycznej, wiec konczymy
+        // if the critical path length is -1, it means
+        // the critical path length calculation was interrupted, so we stop
         if (eval_curr.critical_length == -1) {
             result.critical_length = -1;
             return result;
         }
-        // w przeciwnym przypadku dlugosc sciezki krytycznej ustawiamy
-        // na max z dlugosci sciezek krytycznej na wyjsciach bramek z wejscia
+        // otherwise, set the critical path length
+        // to the max of the critical path lengths of the input gates' outputs
         result.critical_length = max(result.critical_length,
                                      eval_curr.critical_length);
-        // obliczamy wartosc logiczna na wyjsciu
-        // (prznajmniej 1 false oznacza, ze na wyjsciu mamy true)
+        // calculate the logical value of the output
+        // (at least 1 false means the output is true)
         if (!eval_curr.output) {
             result.output = true;
         }
     }
 
-    // spamietujemy wartosci dlugosci sciezki krytycznej dla danej bramki
+    // memoize the critical path length for the gate
     g->critical_length = result.critical_length;
     g->output = result.output;
     g->state = EVALED;
 
-    // zwracamy dlugosc sciezki krytycznej na wyjsciu bramki (tzn. o 1 wiecej)
+    // increase the critical path length by 1
     ++result.critical_length;
     return result;
 }
 
-// obliczamy dlugosc sciezki krytycznej oraz wartosci logiczne bramek na output
+// we calculate the critical path length and the logical values of the gates at the output
 ssize_t nand_evaluate(nand_t **g, bool *s, size_t m) {
-    // sprawdzamy poprawnosc danych
+    // we check the validity of the data
     if (m <= 0 || g == NULL || s == NULL) {
         errno = EINVAL;
         return -1;
@@ -293,13 +297,13 @@ ssize_t nand_evaluate(nand_t **g, bool *s, size_t m) {
         }
     }
 
-    // wywolujemy rekurencyjne obliczenie dlugosci sciezki krytycznej i output
-    // dla kazdej z bramek z tablicy g
+    // we call the recursive calculation of the critical path length and output
+    // for each gate in the array g
     int max_ = 0;
     for (unsigned idx = 0; idx < m; ++idx) {
         struct nand_state eval_curr = nand_evaluate_rec(g[idx]);
         if (eval_curr.critical_length == -1) {
-            // czyscimy stany bramek i zwracamy -1
+            // clear the gate states and return -1
             for (unsigned idx = 0; idx < m; ++idx) {
                 clear_eval(g[idx]);
             }
@@ -309,30 +313,30 @@ ssize_t nand_evaluate(nand_t **g, bool *s, size_t m) {
         max_ = max(max_, eval_curr.critical_length - 1);
     }
 
-    // czyscimy stany bramek
+    // clear the gate states
     for (unsigned idx = 0; idx < m; ++idx) {
         clear_eval(g[idx]);
     }
 
-    // zwracamy maksymalna dlugosc z sciezek krytycznych
+    // return the maximum length of the critical paths
     return max_;
 }
 
-// liczba bramek podlaczonych do output
+// number of gates connected to the output
 ssize_t nand_fan_out(nand_t const *g) {
-    // sprawdzamy poprawnosc danych
+    // check data validity
     if (g == NULL) {
         errno = EINVAL;
         return -1;
     }
 
-    // zwracamy dlugosc outputs
+    // return the length of outputs
     return g->outputs->size;
 }
 
-// zwracamy wskaznik na bramke podlaczona do k-tego wejscia
+// return a pointer to the gate connected to the k-th input
 void* nand_input(nand_t const *g, unsigned k) {
-    // sprawdzamy poprawnosc danych
+    // check data validity
     if (g == NULL || k >= g->input_size) {
         errno = EINVAL;
         return NULL;
@@ -341,19 +345,19 @@ void* nand_input(nand_t const *g, unsigned k) {
         errno = 0;
         return NULL;
     }
-    // jesli bramke na k-tym wejsciu jest boolem, to zwracamy wskaznik na boola
-    // na ktory wskazuje wskaznik w struct'cie
+    // if the gate at the k-th input is a bool, we return a pointer to the bool
+    // that the pointer in the struct points to
     if (g->input[k]->type == BOOL) {
         return g->input[k]->logic_val;
     }
 
-    // w przeciwnym przypadku zwracamy wskaznik na bramke
+    // otherwise, return a pointer to the gate
     return g->input[k];
 }
 
-// zwracamy jedna z bramek podlaczonych do wyjscia bramek w taki sposob, ze
-// jesli wywolamy funkcje dla wszystkich k \in [0, nand_fan_out(g)], to kazda
-// z bramek podlaczonych do outputa pojawi sie dokladnie raz
+// return one of the gates connected to the output in such a way that
+// if we call the function for all k \in [0, nand_fan_out(g)], each of the gates
+// connected to the output will appear exactly once
 nand_t* nand_output(nand_t const *g, ssize_t k) {
     return (nand_t*)iterQueue(g->outputs, k);
 }

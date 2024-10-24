@@ -1,8 +1,9 @@
 #include "queue.h"
 #include <stdlib.h>
+#include <sys/types.h>
 
-// tworzymy nowa kolejke i zwracamy wskaznik na nia
-Queue* newQueue() {
+// we create a new queue and return a pointer to it
+Queue* newQueue(void) {
     Queue* queue = (Queue*)malloc(sizeof(Queue));
     if (queue == NULL) {
         return NULL;
@@ -16,13 +17,13 @@ bool isEmpty(Queue* queue) {
     return queue -> size == 0;
 }
 
-// zwracamy wskaznik na pierwszy element
+// return a pointer to the first element
 void* front(Queue* queue) {
     return queue -> front;
 }
 
-// dodaje element na koniec kolejki
-// zwraca -1 jesli alokacja sie nie powiodla i 0 wpp
+// add an element to the end of the queue
+// returns -1 if allocation failed and 0 otherwise
 int push(Queue* queue, void *val) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     if (newNode == NULL) {
@@ -42,22 +43,22 @@ int push(Queue* queue, void *val) {
     return 0;
 }
 
-// usuwa pierwszy element z kolejki, ktory wskazujy na to samo co
-// wskaznik przekazany do funkcji o ile taki element znajduje sie w kolejce
-// wpp. nic nie robi
+// removes the first element from the queue that matches the pointer
+// passed to the function if such an element exists in the queue
+// otherwise, does nothing
 void deleteNode(Queue* queue, void* ptr) {
     if (isEmpty(queue) || ptr == NULL) {
         return;
     }
 
-    // obsluga przypadku kiedy szukany element znaduje sie na poczatku kolejki
+    // handle the case where the target element is at the beginning of the queue
     if (queue -> front -> val == ptr ) {
         pop(queue);
         return;
     }
 
-    // jesli szukany element znajduje sie gdzies w srodku lub na koncu kolejki
-    // to iterujemy sie przez kolejke i usuwamy szukany elementu
+    // if the target element is somewhere in the middle or at the end of the queue
+    // we iterate through the queue and remove the target element
     Node* curr = queue -> front;
     while (curr -> next != NULL) {
         if (curr -> next -> val == ptr){
@@ -71,7 +72,7 @@ void deleteNode(Queue* queue, void* ptr) {
     }
 }
 
-// usuwa element z poczatku kolejki
+// removes the element from the front of the queue
 void* pop(Queue* queue) {
     if (isEmpty(queue)) {
         return NULL;
@@ -84,8 +85,8 @@ void* pop(Queue* queue) {
     return result;
 }
 
-// funkcja umożliwiająca iteracje po elementach kolejki
-// tzn zwraca element, ktory jest k-ty w kolejce
+// function allowing iteration through the elements of the queue
+// i.e., returns the element that is the k-th in the queue
 void* iterQueue(const Queue* queue, ssize_t k) {
     if (k >= queue -> size) {
         return NULL;
@@ -97,7 +98,7 @@ void* iterQueue(const Queue* queue, ssize_t k) {
     return curr -> val;
 }
 
-// usuwa kolejke i czysci pamiec
+// removes the queue and frees memory
 void freeQueue(Queue* queue) {
     while (!isEmpty(queue)) {
         pop(queue);
