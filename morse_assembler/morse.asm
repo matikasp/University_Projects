@@ -243,6 +243,8 @@ exit_error:
     syscall
 
 exit_success:
-    xor rdi, rdi
-    mov rax, 60
+    cmp r14, 1
+    jne exit_error
+    mov rax, 60             ; sys_exit
+    xor rdi, rdi            ; kod wyjścia 0
     syscall
