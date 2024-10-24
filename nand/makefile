@@ -1,19 +1,19 @@
-# kompilator
+# compiler
 CC = gcc
 
-# opcje
+# options
 CFLAGS = -Wall -Wextra -Wno-implicit-fallthrough -std=gnu17 -fPIC -O2
 
-# opcje linkowania
+# linking options
 LDFLAGS = -shared -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=realloc -Wl,--wrap=reallocarray -Wl,--wrap=free -Wl,--wrap=strdup -Wl,--wrap=strndup
 
-# nazwa biblioteki
+# library name
 LIBRARY = libnand.so
 
-# pliki zrodlowe
+# source files
 SOURCES = nand.c queue.c memory_tests.c
 
-# pliki naglowkowe
+# header files
 HEADERS = nand.h queue.h memory_tests.h
 
 .PHONY: all clean
