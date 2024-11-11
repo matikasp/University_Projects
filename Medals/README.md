@@ -14,7 +14,7 @@ The program reads input lines containing one of the following types of informati
 ### 1. Medal Awarding Information
 A line indicating a country’s medal achievement, formatted as: 
 
-`Country Name` `Medal` `Type`
+`Country Name` `Medal Type`
 
 Where:
 - `Country Name` is the name of the country (a string with only English letters and spaces, first letter capitalized).
