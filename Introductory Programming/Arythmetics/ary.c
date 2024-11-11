@@ -1,7 +1,6 @@
 #include "ary.h"
 #include <stdio.h>
 
-/* function from moodle checking if a number is zero */
 bool eq(double x, double y) { return fabs(x - y) < 1e-10; }
 bool le(double x, double y) { return x < y || eq(x, y); } // <=
 bool ge(double x, double y) { return x > y || eq(x, y); } // >=
