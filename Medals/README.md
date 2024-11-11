@@ -28,7 +28,7 @@ Where:
 ### 2. Medal Revocation Information
 A line indicating the removal of a previously awarded medal:
 
-`-` `Country Name` `Medal` `Type`
+`-` `Country Name` `Medal Type`
 
 Where:
 - `-` indicates a medal revocation.
