@@ -87,8 +87,6 @@ public enum NodeType {
 }
 ```
 
-## Concurrency: Liveness and Safety
-
 The program supports multiple concurrent `solve()` requests and compute circuit values concurrently. The `solve(Circuit c)` method immediately returns as quickly as possible a special `CircuitValue` object representing the value of the circuit. This value can be retrieved by calling the `CircuitValue.getValue()` method, which waits until the value is computed. 
 
 Both leaf values and operator values are computed concurrently. It is assumed that `LeafNode.getValue()` and `getArgs()` may take an arbitrary amount of time but do not cause side effects and correctly handle interruptions.
