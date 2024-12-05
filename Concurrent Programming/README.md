@@ -43,10 +43,6 @@ public interface CircuitValue {
 }
 ```
 
-The `solve(Circuit c)` method immediately returns a special `CircuitValue` object representing the value of the circuit. This value can be retrieved by calling the `CircuitValue.getValue()` method, which waits until the value is computed. Solvers support concurrent handling of multiple `solve()` requests and compute circuit values concurrently.
-
-The `stop()` method stops accepting new `solve()` requests and immediately terminate all ongoing computations. From this point, `CircuitValue` objects resulting from new and interrupted computations may throw `InterruptedException` when `getValue()` is called. Other objects return correctly computed circuit values.
-
 ### Circuit Class
 
 ```java
@@ -93,8 +89,12 @@ public enum NodeType {
 
 ## Concurrency: Liveness and Safety
 
-The program should multiple concurrent `solve()` requests. The results of `solve()` calls are returned as quickly as possible. Both leaf values and operator values are computed concurrently. It is assumed that `LeafNode.getValue()` and `getArgs()` may take an arbitrary amount of time but do not cause side effects and correctly handle interruptions.
+The program supports multiple concurrent `solve()` requests and compute circuit values concurrently. The `solve(Circuit c)` method immediately returns as quickly as possible a special `CircuitValue` object representing the value of the circuit. This value can be retrieved by calling the `CircuitValue.getValue()` method, which waits until the value is computed. 
 
-Each node in the tree structure of the expression should be unique, and the sets of nodes in the tree structures of circuits should be pairwise disjoint. Each `solve()` should receive a different instance of `Circuit`. Additionally, the `stop()` method should be eventually called on each created `CircuitSolver` object.
+Both leaf values and operator values are computed concurrently. It is assumed that `LeafNode.getValue()` and `getArgs()` may take an arbitrary amount of time but do not cause side effects and correctly handle interruptions.
+
+Each node in the tree structure of the expression should be unique, and the sets of nodes in the tree structures of circuits should be pairwise disjoint. Each `solve()` should receive a different instance of `Circuit`. 
+
+The `stop()` method stops accepting new `solve()` requests and immediately terminate all ongoing computations. From this point, `CircuitValue` objects resulting from new and interrupted computations may throw `InterruptedException` when `getValue()` is called. Other objects return correctly computed circuit values. The `stop()` method should be eventually called on each created `CircuitSolver` object.
 
 Lazy evaluation should be implemented, meaning that if the value of a node has been computed, the threads in its subtree should be canceled as soon as possible.
