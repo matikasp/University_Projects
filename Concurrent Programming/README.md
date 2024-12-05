@@ -95,4 +95,4 @@ Each node in the tree structure of the expression should be unique, and the sets
 
 The `stop()` method stops accepting new `solve()` requests and immediately terminate all ongoing computations. From this point, `CircuitValue` objects resulting from new and interrupted computations may throw `InterruptedException` when `getValue()` is called. Other objects return correctly computed circuit values. The `stop()` method should be eventually called on each created `CircuitSolver` object.
 
-Lazy evaluation is implemented, meaning that if the value of a node has been computed, the threads in its subtree should be canceled as soon as possible.
+Lazy evaluation is implemented, meaning that if the value of a node has been computed, the threads in its subtree are canceled as soon as possible.
