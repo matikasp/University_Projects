@@ -71,3 +71,14 @@ The solution will be limited to 128 MiB of address space times the number of thr
 The program should not print anything other than the solution to standard output. It may write to standard error, but this will degrade performance (such things can be hidden in `#ifndef NDEBUG`; the solution will be tested only after compilation in Release mode, i.e., with the `NDEBUG` constant defined).
 
 In case of system function errors, e.g., memory allocation, the program can simply terminate with `exit(1)`.
+
+## Compilation
+
+To compile the project, follow these steps:
+
+```sh
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make
+```
