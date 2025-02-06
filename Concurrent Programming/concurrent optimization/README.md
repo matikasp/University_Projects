@@ -17,13 +17,13 @@ The goal of the task is not the theoretical analysis of the mathematical problem
 
 ### Scalability Factor
 
-Assume that the reference version runs on a given input in time \( t_s \), and the parallel version running on \( n \) auxiliary threads runs in time \( t_n \) (assuming that the machine has at least \( n \) physical cores). Then the scalability factor is \( \frac{t_s}{t_n} \). The higher the better the scalability, ideally a perfectly scalable solution would achieve a factor of \( n \) (technically it is possible to achieve slightly more if the solution on one thread runs faster than the reference implementation).
+Assume that the reference version runs on a given input in time `t_s`, and the parallel version running on `n` auxiliary threads runs in time `t_n` (assuming that the machine has at least `n` physical cores). Then the scalability factor is `t_s / t_n`. The higher the better the scalability, ideally a perfectly scalable solution would achieve a factor of `n` (technically it is possible to achieve slightly more if the solution on one thread runs faster than the reference implementation).
 
 ### Input/Output Format
 
 Functions implementing correct input parsing and output formatting are located in the files `io.h`, `io.c`.
 
-The program receives three lines on standard input. The first line contains four numbers \( t \), \( d \), \( n \), and \( m \) representing the number of auxiliary threads, the parameter \( d \), and the number of forced elements \( A_0 \) and \( B_0 \), respectively. The second and third lines contain \( n \) and \( m \) numbers from the range 1 to \( d \): the elements of the multisets \( A_0 \) and \( B_0 \), respectively. The task is to compute \( \alpha(d, A_0, B_0) \) using \( t \) auxiliary threads. (The main thread can be excluded from \( t \) if no computations from `sumset.h` occur in it.)
+The program receives three lines on standard input. The first line contains four numbers `t`, `d`, `n`, and `m` representing the number of auxiliary threads, the parameter `d`, and the number of forced elements `A_0` and `B_0`, respectively. The second and third lines contain `n` and `m` numbers from the range 1 to `d`: the elements of the multisets `A_0` and `B_0`, respectively. The task is to compute `alpha(d, A_0, B_0)` using `t` auxiliary threads. (The main thread can be excluded from `t` if no computations from `sumset.h` occur in it.)
 
 **Example Input**
 
@@ -32,9 +32,9 @@ The program receives three lines on standard input. The first line contains four
 1
 ```
 
-This means calculating \( \alpha(10, \emptyset, \{1\}) \) using eight auxiliary threads.
+This means calculating `alpha(10, {}, {1})` using eight auxiliary threads.
 
-The output should print the solution \( A, B \) (i.e., uncontroversial \( d \)-limited multisets \( A \supseteq A_0 \), \( B \supseteq B_0 \) maximizing \( \sum A = \sum B \)). The first line should print one number \( \sum A \). The second and third lines should describe the multisets \( A \) and \( B \), respectively. The description of a multiset consists of printing the elements along with their multiplicities separated by single spaces. If an element occurs with multiplicity 1, only the element is printed without the multiplicity. Otherwise, if an element \( a \) occurs \( k \) times, it is printed as \( k \times a \) (multiplicity, "x", and element). Elements are printed in ascending order (regardless of multiplicity).
+The output should print the solution `A, B` (i.e., uncontroversial `d`-limited multisets `A` superset of `A_0`, `B` superset of `B_0` maximizing `sum(A) = sum(B)`). The first line should print one number `sum(A)`. The second and third lines should describe the multisets `A` and `B`, respectively. The description of a multiset consists of printing the elements along with their multiplicities separated by single spaces. If an element occurs with multiplicity 1, only the element is printed without the multiplicity. Otherwise, if an element `a` occurs `k` times, it is printed as `k x a` (multiplicity, "x", and element). Elements are printed in ascending order (regardless of multiplicity).
 
 If there is no solution, print a sum of zero and two empty sets, i.e., `0\n\n\n`.
 
@@ -53,10 +53,10 @@ is a correct output for the above example (not necessarily the only one).
 You can assume that:
 
 - The input is in the given format.
-- \( 1 \leq t \leq 64 \), \( 3 \leq d \leq 50 \), \( 0 \leq n \leq 100 \), \( 0 \leq m \leq 100 \).
-- \( \alpha(d, A_0, B_0) \leq d(d-1) \) for all \( d, A_0, B_0 \).
+- 1 ≤ t ≤ 64, 3 ≤ d ≤ 50, 0 ≤ n ≤ 100, 0 ≤ m ≤ 100.
+- alpha(d, A_0, B_0) ≤ d(d-1) for all d, A_0, B_0.
 
-The solution should traverse all branches of the recursion, just like the given reference version. In particular, we require that the multiset of pairs \( (A_\Sigma, x) \) occurring in the calls to `sumset_add(a, i)` be a superset of that from the attached recursive version (only the value \( x \) and the elements in the set \( A_\Sigma \) are important, not the `last` field, etc.). The point is not to optimize the calculations themselves (e.g., by tabulating results), but to focus on parallelizing them.
+The solution should traverse all branches of the recursion, just like the given reference version. In particular, we require that the multiset of pairs (A_Sigma, x) occurring in the calls to `sumset_add(a, i)` be a superset of that from the attached recursive version (only the value x and the elements in the set A_Sigma are important, not the `last` field, etc.). The point is not to optimize the calculations themselves (e.g., by tabulating results), but to focus on parallelizing them.
 
 You must not implement your own bitsets. You may only use the provided library. You must not access the bits in the `sumset` field of the `Sumset` structure other than through functions from `sumset.h`. You may copy the `Sumset` structure (e.g., `*a = *b`), and you may freely change the remaining fields.
 
