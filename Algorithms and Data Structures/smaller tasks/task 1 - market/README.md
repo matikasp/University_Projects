@@ -17,16 +17,3 @@ This situation repeated several times. Bajtek decided to take a systematic appro
 Your program should print \( m \) lines.  
 - In the \( i \)-th line (for \( i = 1, \dots, m \)), print a single integer representing the maximum odd total price for \( k_i \) products.  
 - If it is not possible to choose \( k_i \) products whose total price is odd, print `-1` instead.  
-
-## **Example**
-### **Input**
-4
-1 2 3 4
-3
-2
-3
-4
-### **Output**
-7
-9
--1
