@@ -23,6 +23,6 @@ University_Projects/
 ```
 
 ## Some of more interesting projects
-- [Boolean Evaluator](./Course_1/project1/)
-- [Concurrent Optimization](./Course_2/project1/)
-- [NAND Evaluator](./Course_3/project1/)
+- [Boolean Evaluator](./Concurrent Programming/Boolean evaluator/)
+- [Concurrent Optimization](./Concurrent Programming/concurrent optimization/)
+- [NAND Evaluator](./Computer Architecture and Operating Systems/nand/)
