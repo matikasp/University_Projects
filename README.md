@@ -21,3 +21,8 @@ University_Projects/
 ├── ...
 └── README.md
 ```
+
+## Some of more interesting projects
+- [Boolean Evaluator](./Course_1/project1/)
+- [Concurrent Optimization](./Course_2/project1/)
+- [NAND Evaluator](./Course_3/project1/)
