@@ -14,7 +14,7 @@ Write a program that, for a given **n** and a description of the trap fields, de
 
 ## **Input**
 
-- The first line contains the integer **n** (1 ≤ n ≤ 100,000), representing the length of the course.
+- The first line contains the integer **n** (1 ≤ n ≤ 100,000,000), representing the length of the course.
 - The second line contains an integer **m** (0 ≤ m ≤ 100,000), representing the number of traps on the course.
 - The next **m** lines each contain an integer **t** (0 ≤ t ≤ n) representing a trap at position **t**.
 - The last line contains the integer **k** (1 ≤ k ≤ 100,000), representing the number of available jump heights.
